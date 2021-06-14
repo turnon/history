@@ -1,6 +1,8 @@
 package db
 
 import (
+	"time"
+
 	"github.com/turnon/history/epoch"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -39,7 +41,7 @@ type Db struct {
 func Conn(path string) *Db {
 	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		panic("failed to connect database: " + path)
 	}
 	return &Db{db}
 }
@@ -48,7 +50,7 @@ func (db *Db) DebugMode() {
 	db.DB = db.DB.Debug()
 }
 
-func (db *Db) Visits(cond *Condition) []*Visit {
+func (db *Db) Visits(cond Condition) []*Visit {
 	joining := db.Order("visits.visit_time desc").Joins("Link")
 
 	if cond.Limit != 0 {
@@ -59,6 +61,9 @@ func (db *Db) Visits(cond *Condition) []*Visit {
 	}
 	if cond.Title != "" {
 		joining = joining.Where("Link.title like ?", "%"+cond.Title+"%")
+	}
+	if cond.VisitTimeGte == "" && cond.VisitTimeLte == "" {
+		cond.VisitTimeGte = time.Now().AddDate(0, 0, -28).Format(epochFormat)
 	}
 	if cond.VisitTimeGte != "" {
 		joining = joining.Where("visits.visit_time >= ?", epoch.To(cond.VisitTimeGte, epochFormat))

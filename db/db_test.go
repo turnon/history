@@ -12,7 +12,7 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 func TestVisits(t *testing.T) {
-	db.Visits(&Condition{
+	db.Visits(Condition{
 		Limit:        1000,
 		Url:          "x",
 		Title:        "y",
