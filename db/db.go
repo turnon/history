@@ -1,4 +1,4 @@
-package dba
+package db
 
 import (
 	"encoding/json"
@@ -25,15 +25,22 @@ type Url struct {
 	LastVisitTime int
 }
 
-func Q() {
-	dbPath := "../tmp/History.db"
-	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+type Db struct {
+	*gorm.DB
+}
+
+func Conn(path string) *Db {
+	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
+	return &Db{db}
+}
 
+func (db *Db) Query() {
 	var visits []Visit
 	var count int64
+
 	db.Order("id desc").Limit(10).Preload(clause.Associations).Find(&visits)
 	db.Model(&Visit{}).Count(&count)
 
