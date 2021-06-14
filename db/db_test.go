@@ -20,12 +20,3 @@ func TestVisits(t *testing.T) {
 		VisitTimeLte: "2021-06-14",
 	})
 }
-
-func TestEpoch(t *testing.T) {
-	expectedDate := "2021-06-14"
-	sec := toEpoch(expectedDate)
-	actualDate := fromEpoch(sec)
-	if expectedDate != actualDate {
-		t.Error(actualDate)
-	}
-}

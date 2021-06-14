@@ -1,11 +1,12 @@
 package db
 
 import (
-	"time"
-
+	"github.com/turnon/history/epoch"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
+
+const epochFormat = "2006-01-02"
 
 type Visit struct {
 	ID            int
@@ -60,10 +61,10 @@ func (db *Db) Visits(cond *Condition) []*Visit {
 		joining = joining.Where("Link.title like ?", "%"+cond.Title+"%")
 	}
 	if cond.VisitTimeGte != "" {
-		joining = joining.Where("visits.visit_time >= ?", toEpoch(cond.VisitTimeGte))
+		joining = joining.Where("visits.visit_time >= ?", epoch.To(cond.VisitTimeGte, epochFormat))
 	}
 	if cond.VisitTimeLte != "" {
-		joining = joining.Where("visits.visit_time <= ?", toEpoch(cond.VisitTimeLte))
+		joining = joining.Where("visits.visit_time <= ?", epoch.To(cond.VisitTimeLte, epochFormat))
 	}
 
 	var visits []*Visit
@@ -72,24 +73,5 @@ func (db *Db) Visits(cond *Condition) []*Visit {
 }
 
 func (v *Visit) VisitTimeStr() string {
-	return fromEpoch(v.VisitTime)
-}
-
-const (
-	epoch  = 11644473600
-	format = "2006-01-02"
-	zoom   = 1000000
-)
-
-func fromEpoch(sec int64) string {
-	timing := time.Unix((-epoch + sec/zoom), 0)
-	return timing.Format(format)
-}
-
-func toEpoch(date string) int64 {
-	timing, err := time.Parse(format, date)
-	if err != nil {
-		panic(err)
-	}
-	return (timing.Unix() + epoch) * zoom
+	return epoch.From(v.VisitTime, epochFormat)
 }
