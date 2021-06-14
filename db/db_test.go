@@ -1,13 +1,20 @@
 package db
 
-import "testing"
+import (
+	"testing"
+)
 
 var db *Db
 
 func TestMain(m *testing.M) {
 	db = Conn("../tmp/History.db")
+	db.DebugMode()
 	m.Run()
 }
-func TestQuery(t *testing.T) {
-	db.Query()
+func TestVisits(t *testing.T) {
+	db.Visits(&Condition{
+		Limit: 1,
+		Url:   "x",
+		Title: "y",
+	})
 }

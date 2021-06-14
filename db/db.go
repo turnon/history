@@ -1,12 +1,8 @@
 package db
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type Visit struct {
@@ -25,6 +21,12 @@ type Url struct {
 	LastVisitTime int
 }
 
+type Condition struct {
+	Limit int
+	Url   string
+	Title string
+}
+
 type Db struct {
 	*gorm.DB
 }
@@ -37,14 +39,24 @@ func Conn(path string) *Db {
 	return &Db{db}
 }
 
-func (db *Db) Query() {
-	var visits []Visit
-	var count int64
+func (db *Db) DebugMode() {
+	db.DB = db.DB.Debug()
+}
 
-	db.Order("id desc").Limit(10).Preload(clause.Associations).Find(&visits)
-	db.Model(&Visit{}).Count(&count)
+func (db *Db) Visits(cond *Condition) []*Visit {
+	joining := db.Order("visits.id desc").Joins("Link")
 
-	bytes, _ := json.MarshalIndent(visits, "", "  ")
-	fmt.Println(string(bytes))
-	fmt.Println(count)
+	if cond.Limit != 0 {
+		joining = joining.Limit(cond.Limit)
+	}
+	if cond.Url != "" {
+		joining = joining.Where("Link.url like ?", "%"+cond.Url+"%")
+	}
+	if cond.Title != "" {
+		joining = joining.Where("Link.title like ?", "%"+cond.Title+"%")
+	}
+
+	var visits []*Visit
+	joining.Find(&visits)
+	return visits
 }
