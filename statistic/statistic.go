@@ -62,6 +62,7 @@ func (vpd *visitsPerDate) Render(w io.Writer) {
 	line.SetGlobalOptions(
 		charts.WithInitializationOpts(opts.Initialization{Theme: types.ThemeWesteros}),
 		charts.WithLegendOpts(opts.Legend{Show: true, Top: "5%"}),
+		charts.WithTooltipOpts(opts.Tooltip{Show: true}),
 		charts.WithInitializationOpts(opts.Initialization{Width: "1800px", Height: "800px"}),
 		charts.WithDataZoomOpts(opts.DataZoom{Type: "slider"}),
 	)
