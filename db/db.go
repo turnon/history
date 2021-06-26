@@ -1,6 +1,7 @@
 package db
 
 import (
+	"net/url"
 	"time"
 
 	"github.com/turnon/history/epoch"
@@ -11,12 +12,14 @@ import (
 const epochFormat = "2006-01-02"
 
 type Visit struct {
-	ID              int
-	Url             int
-	Link            Url `gorm:"foreignKey:Url"`
-	VisitTime       int64
+	ID            int
+	Url           int
+	Link          Url `gorm:"foreignKey:Url"`
+	VisitTime     int64
+	VisitDuration int
+
 	VisitTimeString string `gorm:"-"`
-	VisitDuration   int
+	Host            string `gorm:"-"`
 }
 
 type Url struct {
@@ -84,5 +87,7 @@ func (v *Visit) VisitTimeStr() string {
 
 func (v *Visit) AfterFind(tx *gorm.DB) (err error) {
 	v.VisitTimeString = v.VisitTimeStr()
+	u, _ := url.Parse(v.Link.Url)
+	v.Host = u.Host
 	return
 }
