@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const epochFormat = "2006-01-02"
+const EpochFormat = "2006-01-02"
 
 type Visit struct {
 	ID            int
@@ -67,13 +67,13 @@ func (db *Db) Visits(cond Condition) []*Visit {
 		joining = joining.Where("Link.title like ?", "%"+cond.Title+"%")
 	}
 	if cond.VisitTimeGte == "" && cond.VisitTimeLte == "" {
-		cond.VisitTimeGte = time.Now().AddDate(0, 0, -28).Format(epochFormat)
+		cond.VisitTimeGte = time.Now().AddDate(0, 0, -28).Format(EpochFormat)
 	}
 	if cond.VisitTimeGte != "" {
-		joining = joining.Where("visits.visit_time >= ?", epoch.To(cond.VisitTimeGte, epochFormat))
+		joining = joining.Where("visits.visit_time >= ?", epoch.To(cond.VisitTimeGte, EpochFormat))
 	}
 	if cond.VisitTimeLte != "" {
-		joining = joining.Where("visits.visit_time <= ?", epoch.To(cond.VisitTimeLte, epochFormat))
+		joining = joining.Where("visits.visit_time <= ?", epoch.To(cond.VisitTimeLte, EpochFormat))
 	}
 
 	var visits []*Visit
@@ -82,7 +82,7 @@ func (db *Db) Visits(cond Condition) []*Visit {
 }
 
 func (v *Visit) VisitTimeStr() string {
-	return epoch.From(v.VisitTime, epochFormat)
+	return epoch.From(v.VisitTime, EpochFormat)
 }
 
 func (v *Visit) AfterFind(tx *gorm.DB) (err error) {
