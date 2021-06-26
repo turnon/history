@@ -2,6 +2,7 @@ package statistic
 
 import (
 	"io"
+	"sort"
 	"time"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
@@ -67,7 +68,8 @@ func (vpd *visitsPerDate) Render(w io.Writer) {
 
 	line.SetXAxis(vpd.dates)
 
-	for category, visits := range vpd.vpd {
+	for _, category := range vpd.categories() {
+		visits := vpd.vpd[category]
 		items := make([]opts.LineData, 0)
 		for _, date := range vpd.dates {
 			sum := visits[date]
@@ -80,4 +82,14 @@ func (vpd *visitsPerDate) Render(w io.Writer) {
 	line.SetSeriesOptions(charts.WithLineChartOpts(opts.LineChart{Smooth: true}))
 
 	line.Render(w)
+}
+
+func (vpd *visitsPerDate) categories() []string {
+	cates := make([]string, 0, len(vpd.vpd))
+	for category, _ := range vpd.vpd {
+		cates = append(cates, category)
+
+	}
+	sort.Strings(cates)
+	return cates
 }
