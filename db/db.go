@@ -11,11 +11,12 @@ import (
 const epochFormat = "2006-01-02"
 
 type Visit struct {
-	ID            int
-	Url           int
-	Link          Url `gorm:"foreignKey:Url"`
-	VisitTime     int64
-	VisitDuration int
+	ID              int
+	Url             int
+	Link            Url `gorm:"foreignKey:Url"`
+	VisitTime       int64
+	VisitTimeString string `gorm:"-"`
+	VisitDuration   int
 }
 
 type Url struct {
@@ -79,4 +80,9 @@ func (db *Db) Visits(cond Condition) []*Visit {
 
 func (v *Visit) VisitTimeStr() string {
 	return epoch.From(v.VisitTime, epochFormat)
+}
+
+func (v *Visit) AfterFind(tx *gorm.DB) (err error) {
+	v.VisitTimeString = v.VisitTimeStr()
+	return
 }

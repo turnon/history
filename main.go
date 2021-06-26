@@ -28,7 +28,7 @@ func main() {
 		ctx.ShouldBindQuery(&cond)
 		visits := data.Visits(cond)
 
-		ctx.JSON(200, gin.H{
+		ctx.IndentedJSON(200, gin.H{
 			"result": visits,
 		})
 	})
